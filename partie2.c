@@ -70,7 +70,6 @@ void VD (Liste *L);
 void VireDernier_rec (Liste *L);
 void VireDernier_iter (Liste *L);
 
-
 /*************************************************/
 /*                                               */
 /*                briques de base                */
@@ -286,32 +285,38 @@ int nb0k_vi(Liste l1, int k){//iteratif
 }
 
 int nb0k_vr(Liste l1, int k){//recursif simple
-	if (k==1 && premier(l1)==0){
-		return 1;
-	}
-	if (k==1 && premier(l1)!=0){
-		return 0;
-	}
-	if (l1==NULL){
-		return 0;//modif
-	}
-	if (premier(l1)!=0) {
-		return nb0k_vr(suite(l1),k-1);
-	}
-	return 1+nb0k_vr(suite(l1),k-1);
+    if (estVide(l1) || k==0){
+        return 0;
+    }
+    if (premier(l1)!=0) {
+        return nb0k_vr(suite(l1),k-1);
+    }
+    return 1+nb0k_vr(suite(l1),k-1);
 }
 
+void test_bruh(){
+	Liste L;
+	initVide(&L);
+	empile(0, &L);
+	empile(0, &L);
+	empile(0, &L);
+	empile(0, &L);
+	empile(0, &L);
+	empile(0, &L);
+	empile(1, &L);
+	empile(0, &L);
+	printf("%d", nb0k_vr(L, 0));
+}
+
+
 int s_f(Liste l1, int k , int acc){ //fonction pour recursif terminale
-	if (k==1 && premier(l1)==0){
-		return acc+1;
-	}
-	if ( l1==NULL || (k==1 && premier(l1)!=0) ){ //modif
-		return acc;
-	}
-	if (premier(l1)!=0) {
-		return s_f(suite(l1),k-1,acc);
-	}
-	return s_f(suite(l1),k-1,acc+1);
+    if (estVide(l1)||k==0){
+        return acc;
+    }
+    if (premier(l1)!=0) {
+        return s_f(suite(l1),k-1,acc);
+    }
+    return s_f(suite(l1),k-1,acc+1);
 }
 
 int nb0k_vrtf(Liste l1, int k){//recursif terminale sous_fonctions
@@ -319,18 +324,15 @@ int nb0k_vrtf(Liste l1, int k){//recursif terminale sous_fonctions
 }
 
 void s_p(Liste l1, int k, int *acc){
-	if (l1!=NULL){ //modif
-		if (k==1 && premier(l1)==0){
-			*acc+=1;
-		}
-		else if (premier(l1)!=0) {
-			s_p(suite(l1),k-1,acc);
-		}
-		else{
-			*acc+=1;
-			s_p(suite(l1),k-1,acc);
-		}
-	}
+    if (l1!=NULL && k!=0){
+        if (premier(l1)!=0){
+            s_p(suite(l1),k-1,acc);
+        }
+        else{
+            *acc +=1;
+            s_p(suite(l1),k-1,acc);
+        }
+    }
 }
 
 int nb0k_vrtp(Liste l1, int k){//recursif terminale sous_procedure
@@ -340,24 +342,24 @@ int nb0k_vrtp(Liste l1, int k){//recursif terminale sous_procedure
 	return acc;
 }
 
-int nb0kretro(Liste l1, int k){
-	if (k==0){
-		return 0;
-	}
-	Liste p1=l1;
-	Liste p2=l1;
-	for (int i=0;i<k-1;i++){
-		if (suite(p2)==NULL){
-			return nb0k_vi(l1,k+1);
-		}
-		p2=suite(p2);
-	}
-	while(suite(p2)!=NULL){
-		p2=suite(p2);
-		p1=suite(p1);
-	}
-	return nb0k_vi(p1,k+1);
+void BisNB0Kretro(Liste l1, int* k, int* acc){
+    if (!estVide(l1)){
+        BisNB0Kretro(suite(l1),k,acc);
+        if (*k!=0){
+            *k-=1;
+            if (premier(l1)==0){
+                *acc +=1;
+            }
+        }
+    }
 }
+
+int nb0kretro(Liste l1, int k){
+    int acc=0;
+    BisNB0Kretro(l1,&k,&acc);
+    return acc;
+}
+
 
 Liste Fctbegaye(Liste l1){
 	if (estVide(l1)){
@@ -367,12 +369,104 @@ Liste Fctbegaye(Liste l1){
 		return ajoute(premier(l1),ajoute(premier(l1),Fctbegaye(suite(l1))));
 	}
 	else{
-		return ajoute(premier(l1),Fctbegaye(suite(l1)));
+		return Fctbegaye(suite(l1));
 	}
-
 }
 
 
+//bruh
+//void BisFB(Liste L, Liste* acc){
+//	if(estVide(L)){
+//		return;
+//	}
+//	else{
+//		if(premier(L)>0){
+//			empile(premier(L), acc);
+//			empile(premier(L), suite(&acc));
+//			BisFB(suite(L), suite(acc));
+//		}else{
+//			BisFB(suite(L), acc);
+//		}
+//	}
+//}
+//
+//Liste FB(Liste L){
+//	Liste acc;
+//	initVide(&acc);
+//	BisFB(L,acc);
+//	return acc;
+//}
+
+Liste* PointeurSuite(Liste* L){
+	if (estVide(*L)){
+		return L;
+	}else{
+		return &((*L) -> suivant);
+	}
+}
+
+void test_pointeur_suite(){
+	Liste E;
+	initVide(&E);
+	empile(0, &E);
+	empile(1, &E);
+	empile(2, &E);
+	empile(3, &E);
+	empile(4, &E);
+	Liste *B = PointeurSuite(&E);
+	depile(B);
+	affiche_rec(E);
+	affiche_rec(*B);
+}
+
+
+Liste FBIter(Liste L){
+	Liste R;
+	initVide(&R);
+	Liste* Q = &R;
+	Liste P = L;
+	while(!estVide(P)){
+		if(premier(P)>0){
+			empile(premier(P), Q);
+			empile(premier(P), PointeurSuite(Q));
+			P = suite(P);
+			Q = &((**Q).suivant);
+		}else{
+			P = suite(P);
+		}
+	}
+	return R;
+}
+
+
+
+void test_fct_begaye(){
+	Liste l2 ;
+
+	Liste l3 ;
+
+		initVide (&l3) ;
+		empile(0, &l3);
+
+		initVide (&l2) ;
+		empile(3, &l2) ;
+		empile(0, &l2) ;
+
+		  //poup(l) ;
+
+			 empile(0, &l2) ;
+			 empile(1, &l2) ;
+			 empile(0, &l2) ;
+			 empile(0, &l2) ;
+			 empile(0, &l2) ;
+			 empile(9, &l2) ;
+			 empile(6, &l2) ;
+			 empile(5, &l2) ;
+			 empile(8, &l2) ;
+			 empile(2, &l2) ;
+	affiche_rec(l3);
+	affiche_rec(Fctbegaye(l3));
+}
 
 void test_retro_k(){
 	Liste l2 ;
@@ -403,6 +497,9 @@ void test_retro_k(){
 	printf("%d\n",nb0kretro(l2,0));
 	printf("%d\n",nb0kretro(l2,1));
 }
+
+
+
 
 
 typedef struct PBloc
@@ -451,10 +548,13 @@ int main(int argc, char** argv)
 
 	//Nos tests de fonctions ci-dessous
 	//affiche_rec(l);
-	affiche_rec(l2);
+	//affiche_rec(l2);
+	test_pointeur_suite();
+	//test_fct_begaye();
+	//test_bruh();
 	//printf("%d\n",pos_0123(l));
 	//printf("%d\n",pluscourte(l,l2));
-	printf("%d\n",nb0k_vrtf(l2,7));
+	//printf("%d\n",nb0k_vrtf(l2,7));
 	return 0;
 }
 
