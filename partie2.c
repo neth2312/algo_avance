@@ -246,6 +246,14 @@ void poup (Liste l)
 /*                                               */
 /*************************************************/
 
+Liste* PointeurSuite(Liste* L){
+	if (estVide(*L)){
+		return L;
+	}else{
+		return &((*L) -> suivant);
+	}
+}
+
 int pos_0123(Liste l){
 	if (estVide(l)){
 		return 0;
@@ -374,36 +382,30 @@ Liste Fctbegaye(Liste l1){
 }
 
 
-//bruh
-//void BisFB(Liste L, Liste* acc){
-//	if(estVide(L)){
-//		return;
-//	}
-//	else{
-//		if(premier(L)>0){
-//			empile(premier(L), acc);
-//			empile(premier(L), suite(&acc));
-//			BisFB(suite(L), suite(acc));
-//		}else{
-//			BisFB(suite(L), acc);
-//		}
-//	}
-//}
-//
-//Liste FB(Liste L){
-//	Liste acc;
-//	initVide(&acc);
-//	BisFB(L,acc);
-//	return acc;
-//}
 
-Liste* PointeurSuite(Liste* L){
-	if (estVide(*L)){
-		return L;
-	}else{
-		return &((*L) -> suivant);
+void BisFB(Liste L, Liste* acc){
+	if(estVide(L)){
+		return;
+	}
+	else{
+		if(premier(L)>0){
+			empile(premier(L), acc);
+			empile(premier(L), PointeurSuite(acc));
+			BisFB(suite(L), PointeurSuite(PointeurSuite(acc)));
+		}else{
+			BisFB(suite(L), acc);
+		}
 	}
 }
+
+Liste FB(Liste L){
+	Liste acc;
+	initVide(&acc);
+	BisFB(L,&acc);
+	return acc;
+}
+
+
 
 void test_pointeur_suite(){
 	Liste E;
@@ -427,11 +429,11 @@ Liste FBIter(Liste L){
 	Liste P = L;
 	while(!estVide(P)){
 		if(premier(P)>0){
-			empile(premier(P), PointeurSuite(Q));
+			empile(premier(P), Q);
 			empile(premier(P), PointeurSuite(Q));
 			P = suite(P);
 			//Q = &((**Q).suivant);
-			Q = PointeurSuite(Q);
+			Q = PointeurSuite(PointeurSuite(Q));
 
 		}else{
 			P = suite(P);
@@ -459,7 +461,7 @@ void test_fct_begaye(){
 			 empile(0, &l2) ;
 			 empile(1, &l2) ;
 			 empile(0, &l2) ;
-			 empile(0, &l2) ;
+			 empile(-1, &l2) ;
 			 empile(0, &l2) ;
 			 empile(9, &l2) ;
 			 empile(6, &l2) ;
@@ -467,7 +469,7 @@ void test_fct_begaye(){
 			 empile(8, &l2) ;
 			 empile(2, &l2) ;
 	affiche_rec(l2);
-	affiche_rec(FBIter(l2));
+	affiche_rec(FB(l2));
 }
 
 void test_retro_k(){
@@ -579,8 +581,8 @@ int main(int argc, char** argv)
 	//affiche_rec(l);
 	//affiche_rec(l2);
 	//test_pointeur_suite();
-	//test_fct_begaye();
-	test_pb();
+	test_fct_begaye();
+	//test_pb();
 	//test_bruh();
 	//printf("%d\n",pos_0123(l));
 	//printf("%d\n",pluscourte(l,l2));
