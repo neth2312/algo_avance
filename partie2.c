@@ -427,10 +427,12 @@ Liste FBIter(Liste L){
 	Liste P = L;
 	while(!estVide(P)){
 		if(premier(P)>0){
-			empile(premier(P), Q);
+			empile(premier(P), PointeurSuite(Q));
 			empile(premier(P), PointeurSuite(Q));
 			P = suite(P);
-			Q = &((**Q).suivant);
+			//Q = &((**Q).suivant);
+			Q = PointeurSuite(Q);
+
 		}else{
 			P = suite(P);
 		}
@@ -464,8 +466,8 @@ void test_fct_begaye(){
 			 empile(5, &l2) ;
 			 empile(8, &l2) ;
 			 empile(2, &l2) ;
-	affiche_rec(l3);
-	affiche_rec(Fctbegaye(l3));
+	affiche_rec(l2);
+	affiche_rec(FBIter(l2));
 }
 
 void test_retro_k(){
@@ -498,7 +500,34 @@ void test_retro_k(){
 	printf("%d\n",nb0kretro(l2,1));
 }
 
+void ProcBegaye(Liste *L){
+	if(estVide(*L)){
+		return;
+	}else{
+		if(premier(*L)>0){
+			empile(premier(*L), PointeurSuite(L));
+			ProcBegaye(PointeurSuite(PointeurSuite(L)));
+		}else{
+			depile(L);
+			ProcBegaye(L);
+		}
+	}
+}
 
+void test_pb(){
+	Liste L;
+	initVide(&L);
+	empile(8,&L);
+	empile(8,&L);
+	empile(-2,&L);
+	empile(6,&L);
+	empile(0,&L);
+	empile(1,&L);
+	empile(2,&L);
+	affiche_rec(L);
+	ProcBegaye(&L);
+	affiche_rec(L);
+}
 
 
 
@@ -549,8 +578,9 @@ int main(int argc, char** argv)
 	//Nos tests de fonctions ci-dessous
 	//affiche_rec(l);
 	//affiche_rec(l2);
-	test_pointeur_suite();
+	//test_pointeur_suite();
 	//test_fct_begaye();
+	test_pb();
 	//test_bruh();
 	//printf("%d\n",pos_0123(l));
 	//printf("%d\n",pluscourte(l,l2));
