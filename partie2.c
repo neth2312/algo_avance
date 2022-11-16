@@ -544,6 +544,61 @@ typedef struct PBloc
 typedef PBloc *ListeBis ;
 
 
+
+Liste concat(Liste L1, Liste L2){
+    if (estVide(L1)){
+        return L2;
+    } else {
+        return ajoute(premier(L1),concat(suite(L1),L2));
+    }
+}
+
+Liste AETTL(int x, Liste L){
+    if (estVide(L)){
+        return L;
+    } else {
+        return ajoute(ajoute(x,premier(L)),AETTL(x,suite(L)));    
+    }
+}
+
+Liste ATP(int x, Liste L){
+    if (estVide(L)){
+        Liste L2;
+        initVide(&L2);
+        Liste sl;
+        initVide(&sl);
+        return ajoute(ajoute(x,sl),L2);
+    } else{
+        return ajoute(ajoute(x,L),
+        AETTL(premier(L),ATP(x,suite(L))));
+    }
+}
+
+Liste ATLTP(int x, Liste L){
+    if (estVide(L)){
+        return L;
+    } else {
+        return concat(ATP(x,premier(L)), ATLTP(x,suite(L)));
+    }
+}
+
+Liste Permutations(int n){
+    if (n==0){
+        Liste L;
+        initVide(&L);
+        Liste sl;
+        initVide(&sl);
+        return ajoute(sl,L);
+    } else {
+        return ATLTP(n,Permutations(n-1));
+    }
+}
+
+void test_permutation(){
+    Liste per = Permutations(1);
+    affiche_rec(per);
+}
+
 int main(int argc, char** argv)
 {
 	Liste l ;

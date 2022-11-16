@@ -212,21 +212,31 @@ double e_1pn_v10(unsigned int N){
 
 
 //1.4
-long long int Ackermann_rec(int m, int n){
+int Ackermann_rec(int m, int n){
 	if(m==0){
 		return n+1;
-	}else if(n==0){
-		return Ackermann_rec(m-1, 1);
-	}else{
-		return Ackermann_rec(m-1, Ackermann_rec(m, n-1));
+	} else {
+		if(n==0){
+			return Ackermann_rec(m-1, 1);
+		} else {
+			return Ackermann_rec(m-1, Ackermann_rec(m, n-1));
+		}
 	}
 }
 
-long long int Ackermann_iter_rec(int m, int n){
+
+//A(int m,n) : int
+//f si m=0 alors rendre n+1
+//sinon
+//si n=0 alors rendre A(m-1,1)
+//sinon rendre A(m-1,A(m,n-1)) g
+
+
+int Ackermann_iter_rec(int m, int n){
 	if(m==0){
 		return n+1;
 	}else{
-		long long int am = 1;
+		int am = 1;
 		for(int cpt=0; cpt<n+1;cpt++){
 			am = Ackermann_iter_rec(m-1,am);
 		}
@@ -319,8 +329,11 @@ void test_1_3(){
 void test_1_4(){
 	int n = 5;
 	//printf("%lld\n", Ackermann_iter(5,0));
-	for(int m=1; m<6; m++){
-		printf("%lld\nwhat bruh\n", Ackermann_rec(m,0));
+	for(int m=4; m<6; m++){
+		printf("yep");
+		int res = Ackermann_rec(m,0);
+		printf("yep");
+		printf("%d\nwhat bruh\n", res);
 	}
 	//for(int m=1; m<6; m++){
 	//	printf("%lld\nwhat bruh\n", Ackermann_iter_rec(m,0));
