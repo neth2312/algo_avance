@@ -17,6 +17,14 @@ double e(int borne_inf,int borne_sup,unsigned long int produit,float somme){
 
 //1.2
 
+double en(int n){
+	if(n==0){
+		return E - 1;
+	}else{
+		return n*en(n-1) - 1;
+	}
+}
+
 
 //1.3
 float power_v1(float x, int n){
@@ -203,28 +211,26 @@ double e_1pn_v10(unsigned int N){
 }
 
 
-
-
-
 //1.4
-long long int Ackermann(int m, int n){
+long long int Ackermann_rec(int m, int n){
 	if(m==0){
 		return n+1;
-	}else if(m>0 && n==0){
-		return Ackermann(m-1, 1);
-	}else if(m>0 && n>0){
-		return Ackermann(m-1, Ackermann(m, n-1));
+	}else if(n==0){
+		return Ackermann_rec(m-1, 1);
+	}else{
+		return Ackermann_rec(m-1, Ackermann_rec(m, n-1));
 	}
 }
 
-
-long long int Ackermann(int m, int n){
+long long int Ackermann_iter_rec(int m, int n){
 	if(m==0){
 		return n+1;
-	}else if(m>0 && n==0){
-		return Ackermann(m-1, 1);
-	}else if(m>0 && n>0){
-		return Ackermann(m-1, Ackermann(m, n-1));
+	}else{
+		long long int am = 1;
+		for(int cpt=0; cpt<n+1;cpt++){
+			am = Ackermann_iter_rec(m-1,am);
+		}
+		return am;
 	}
 }
 
@@ -288,6 +294,13 @@ void test_1_1(){
 	printf("%lf\n", e(0, 32, 1L, 0.0));
 }
 
+void test_1_2(){
+	int n=50;
+	for(int i=0; i<n; i++){
+		printf("%.10lf\n", en(i));
+	}
+}
+
 void test_1_3(){
 	int N=10000;
 	printf("%.10lf\n", e_1pn_v0(N, N));
@@ -303,6 +316,17 @@ void test_1_3(){
 	printf("%.10lf\n", e_1pn_v10(N));
 }
 
+void test_1_4(){
+	int n = 5;
+	//printf("%lld\n", Ackermann_iter(5,0));
+	for(int m=1; m<6; m++){
+		printf("%lld\nwhat bruh\n", Ackermann_rec(m,0));
+	}
+	//for(int m=1; m<6; m++){
+	//	printf("%lld\nwhat bruh\n", Ackermann_iter_rec(m,0));
+	//}
+}
+
 
 int main(){
 	//int M=33;
@@ -311,7 +335,7 @@ int main(){
 	//printf("%f\n",xn);
 	//long long int AAAAAAAAArgh = Ackermann(5,0);
 	//printf("%lld",AAAAAAAAArgh);
-	test_1_3();
-
+	//test_1_3();
+	test_1_4();
 	return 0;
 }
