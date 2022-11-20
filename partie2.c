@@ -551,143 +551,149 @@ typedef PBloc *ListeBis ;
 //possible surcharge de fonction
 //pas tres correcte dinitialiser a vide
 
-void initVideBis( ListeBis *L){
-	*L = NULL;
+void initVideBis( ListeBis *L){//pas sure
+	L = NULL;
 }
 
-void empileBis(int x, PBloc *l){
-	if(l==NULL){
-		PBloc prem = {
-			.suivant=NULL,
-			.pred = &l,
-			.nombre=x,
-		};
-		l = &prem;
-		return;
-	}else{
-		PBloc nouveau = {
-			.suivant = l,
-			.pred = (*l).pred,
-			.nombre = x,
-		};
-		(*l).pred = &(nouveau.suivant);
-	}
+bool estVideBis(ListeBis L){
+	return L==NULL;
+}
+
+int premierBis(ListeBis L){
+	return L->nombre;
 }
 
 ListeBis suiteBis(ListeBis L){
-	if(estVide(L)){
-		return -1;
+	if(! estVideBis(L)){
+		return L->suivant;
 	}
-	return L->suivant;
+	else{
+		return NULL;
+	}
 }
 
-int premierBis(){
-
-}
-
-void afficheRecBis(ListBis l){
-	if(estVide(l)){
+void afficheRecBis(ListeBis l){
+	if(estVideBis(l) || estVideBis(suiteBis(l))){
 		printf("\n");
 	}else{
-		printf(l->nombre);
-		afficheRecBis(suiteBis(L));
+		printf("%d\n",premierBis(l));
+		afficheRecBis(suiteBis(l));
 	}
 }
 
+ListeBis ajouteBis(int x, ListeBis L){
+	ListeBis tmp = (ListeBis)malloc(sizeof(PBloc));
+	tmp->nombre = x;
+	tmp->suivant = L;
+	tmp->pred = &tmp;
+	L->pred = &tmp->suivant;
+	return tmp;
+}
 
-//Pour ajoute t'as pas misble champ pred du bloc
-//void ajoute(int x, ListeBis L){
-//	ListeBis tmp = (Liste) malloc(sizeof(Bloc));
-//	PBloc nouveau = {
-//		.suivant = L->entree;
-//		.pred = (*l)->pred;
-//		.nombre = x;
-//	};
-//
-//	quel_bloc->pred = L->entree;
-//	quel_bloc->nombre = x;
-//	quel_bloc->suivant = l;
-//	return tmp;
-//}
+void empileBis(int x, ListeBis *l){
+	*l = ajouteBis(x, *l);
+}
 
-//ListeBis ajoute(int x; ListeBis L){
-//	ListeBis tmp = (ListeBis) malloc(sizeof(PBloc));
-//	PBloc X = {
-//		.suivant=&(tmp->entree);
-//		.nombre=x;
-//		.pred=L->entree;
-//	};
-//	//tmp-> (*entree) -> nombre = x;//ok, 
-//	//tmp-> (*entree) ->suivant = &L;
-//	//ListeBis NL = &(tmp-> (*entree));
-//	return NL;
-//}
+ListeBis* PointeurSuiteBis(ListeBis* L){
+	if (estVideBis(*L)){
+		return L;
+	}else{
+		return &((*L) -> suivant);//verifie juste ca
+	}
+}
 
-//void retirePBloc(PBloc *P){
-//
-//}
+void depileBis(ListeBis *L){
+	ListeBis tmp = *L;
+	*L = suiteBis(*L);
+	free(tmp);
+}
+
+void retirePBloc(ListeBis *L, PBloc *P){
+	if(estVideBis(*L)){
+		return;
+	}else if((*L)->pred==P->pred){
+		depileBis(L);
+	}else{
+		retirePBloc(PointeurSuiteBis(L),P);
+	}
+}
 
 //pas ouf la notation 
 void test_ListeBis(){
 	ListeBis l;
 	initVideBis(&l);
-	empileBis(0, l);
+	ListeBis L = ajouteBis( 0 , l);
+	L = ajouteBis( 1 , L);
+	L = ajouteBis( 2 , L);
+	L = ajouteBis( 3 , L);
+	afficheRecBis(L);
+	ListeBis l2 = L;
+	empileBis( 4 , &l2);
+	empileBis( 5 , &l2);
+	empileBis( 6 , &l2);
+	afficheRecBis(l2);
+	//comportement erratique, fonctionne sur L mais pas sur l2
+	PBloc **p = PointeurSuiteBis(&l2);
+	retirePBloc(&l2,*p);
+	afficheRecBis(l2);
 }
 
 
-//Liste concat(Liste L1, Liste L2){
-//    if (estVide(L1)){
-//        return L2;
-//    } else {
-//        return ajoute(premier(L1),concat(suite(L1),L2));
-//    }
-//}
-//
-//Liste AETTL(int x, Liste L){
-//    if (estVide(L)){
-//        return L;
-//    } else {
-//        return ajoute(ajoute(x,premier(L)),AETTL(x,suite(L)));    
-//    }
-//}
-//
-//Liste ATP(int x, Liste L){
-//    if (estVide(L)){
-//        Liste L2;
-//        initVide(&L2);
-//        Liste sl;
-//        initVide(&sl);
-//        return ajoute(ajoute(x,sl),L2);
-//    } else{
-//        return ajoute(ajoute(x,L),
-//        AETTL(premier(L),ATP(x,suite(L))));
-//    }
-//}
-//
-//Liste ATLTP(int x, Liste L){
-//    if (estVide(L)){
-//        return L;
-//    } else {
-//        return concat(ATP(x,premier(L)), ATLTP(x,suite(L)));
-//    }
-//}
-//
-//Liste Permutations(int n){
-//    if (n==0){
-//        Liste L;
-//        initVide(&L);
-//        Liste sl;
-//        initVide(&sl);
-//        return ajoute(sl,L);
-//    } else {
-//        return ATLTP(n,Permutations(n-1));
-//    }
-//}
-//
-//void test_permutation(){
-//    Liste per = Permutations(1);
-//    affiche_rec(per);
-//}
+
+// La partie permutation ne donne pas de bons resultats
+Liste concat(Liste L1, Liste L2){
+    if (estVide(L1)){
+        return L2;
+    } else {
+        return ajoute(premier(L1),concat(suite(L1),L2));
+    }
+}
+
+Liste AETTL(int x, Liste L){
+    if (estVide(L)){
+        return L;
+    } else {
+        return ajoute(ajoute(x,premier(L)),AETTL(x,suite(L)));    
+    }
+}
+
+Liste ATP(int x, Liste L){
+    if (estVide(L)){
+        Liste L2;
+        initVide(&L2);
+        Liste sl;
+        initVide(&sl);
+        return ajoute(ajoute(x,sl),L2);
+    } else{
+        return ajoute(ajoute(x,L),
+        AETTL(premier(L),ATP(x,suite(L))));
+    }
+}
+
+Liste ATLTP(int x, Liste L){
+    if (estVide(L)){
+        return L;
+    } else {
+        return concat(ATP(x,premier(L)), ATLTP(x,suite(L)));
+    }
+}
+
+Liste Permutations(int n){
+    if (n==0){
+        Liste L;
+        initVide(&L);
+        Liste sl;
+        initVide(&sl);
+        return ajoute(sl,L);
+    } else {
+        return ATLTP(n,Permutations(n-1));
+    }
+}
+
+void test_permutation(){
+    Liste per = Permutations(1);
+    affiche_rec(per);
+}
 
 int main(int argc, char** argv)
 {
