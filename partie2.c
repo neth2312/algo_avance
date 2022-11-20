@@ -293,13 +293,13 @@ int nb0k_vi(Liste l1, int k){//iteratif
 }
 
 int nb0k_vr(Liste l1, int k){//recursif simple
-    if (estVide(l1) || k==0){
-        return 0;
-    }
-    if (premier(l1)!=0) {
-        return nb0k_vr(suite(l1),k-1);
-    }
-    return 1+nb0k_vr(suite(l1),k-1);
+	if (estVide(l1) || k==0){
+		return 0;
+	}
+	if (premier(l1)!=0) {
+		return nb0k_vr(suite(l1),k-1);
+	}
+	return 1+nb0k_vr(suite(l1),k-1);
 }
 
 void test_bruh(){
@@ -318,13 +318,13 @@ void test_bruh(){
 
 
 int s_f(Liste l1, int k , int acc){ //fonction pour recursif terminale
-    if (estVide(l1)||k==0){
-        return acc;
-    }
-    if (premier(l1)!=0) {
-        return s_f(suite(l1),k-1,acc);
-    }
-    return s_f(suite(l1),k-1,acc+1);
+	if (estVide(l1)||k==0){
+		return acc;
+	}
+	if (premier(l1)!=0) {
+		return s_f(suite(l1),k-1,acc);
+	}
+	return s_f(suite(l1),k-1,acc+1);
 }
 
 int nb0k_vrtf(Liste l1, int k){//recursif terminale sous_fonctions
@@ -332,15 +332,15 @@ int nb0k_vrtf(Liste l1, int k){//recursif terminale sous_fonctions
 }
 
 void s_p(Liste l1, int k, int *acc){
-    if (l1!=NULL && k!=0){
-        if (premier(l1)!=0){
-            s_p(suite(l1),k-1,acc);
-        }
-        else{
-            *acc +=1;
-            s_p(suite(l1),k-1,acc);
-        }
-    }
+	if (l1!=NULL && k!=0){
+		if (premier(l1)!=0){
+			s_p(suite(l1),k-1,acc);
+		}
+		else{
+			*acc +=1;
+			s_p(suite(l1),k-1,acc);
+		}
+	}
 }
 
 int nb0k_vrtp(Liste l1, int k){//recursif terminale sous_procedure
@@ -351,21 +351,21 @@ int nb0k_vrtp(Liste l1, int k){//recursif terminale sous_procedure
 }
 
 void BisNB0Kretro(Liste l1, int* k, int* acc){
-    if (!estVide(l1)){
-        BisNB0Kretro(suite(l1),k,acc);
-        if (*k!=0){
-            *k-=1;
-            if (premier(l1)==0){
-                *acc +=1;
-            }
-        }
-    }
+	if (!estVide(l1)){
+		BisNB0Kretro(suite(l1),k,acc);
+		if (*k!=0){
+			*k-=1;
+			if (premier(l1)==0){
+				*acc +=1;
+			}
+		}
+	}
 }
 
 int nb0kretro(Liste l1, int k){
-    int acc=0;
-    BisNB0Kretro(l1,&k,&acc);
-    return acc;
+	int acc=0;
+	BisNB0Kretro(l1,&k,&acc);
+	return acc;
 }
 
 
@@ -531,73 +531,163 @@ void test_pb(){
 	affiche_rec(L);
 }
 
+//???????????????
+//typedef struct ListeBis{
+//	PBloc *entree;
+//};
+
 
 
 typedef struct PBloc
 {
-    int nombre;
-    struct PBloc *suivant;
-    struct PBloc *pred;
-
+	int nombre;
+	struct PBloc *suivant;
+	struct PBloc **pred;
 } PBloc;
 
 typedef PBloc *ListeBis ;
 
 
+//possible surcharge de fonction
+//pas tres correcte dinitialiser a vide
 
-Liste concat(Liste L1, Liste L2){
-    if (estVide(L1)){
-        return L2;
-    } else {
-        return ajoute(premier(L1),concat(suite(L1),L2));
-    }
+void initVideBis( ListeBis *L){
+	*L = NULL;
 }
 
-Liste AETTL(int x, Liste L){
-    if (estVide(L)){
-        return L;
-    } else {
-        return ajoute(ajoute(x,premier(L)),AETTL(x,suite(L)));    
-    }
+void empileBis(int x, PBloc *l){
+	if(l==NULL){
+		PBloc prem = {
+			.suivant=NULL,
+			.pred = &l,
+			.nombre=x,
+		};
+		l = &prem;
+		return;
+	}else{
+		PBloc nouveau = {
+			.suivant = l,
+			.pred = (*l).pred,
+			.nombre = x,
+		};
+		(*l).pred = &(nouveau.suivant);
+	}
 }
 
-Liste ATP(int x, Liste L){
-    if (estVide(L)){
-        Liste L2;
-        initVide(&L2);
-        Liste sl;
-        initVide(&sl);
-        return ajoute(ajoute(x,sl),L2);
-    } else{
-        return ajoute(ajoute(x,L),
-        AETTL(premier(L),ATP(x,suite(L))));
-    }
+ListeBis suiteBis(ListeBis L){
+	if(estVide(L)){
+		return -1;
+	}
+	return L->suivant;
 }
 
-Liste ATLTP(int x, Liste L){
-    if (estVide(L)){
-        return L;
-    } else {
-        return concat(ATP(x,premier(L)), ATLTP(x,suite(L)));
-    }
+int premierBis(){
+
 }
 
-Liste Permutations(int n){
-    if (n==0){
-        Liste L;
-        initVide(&L);
-        Liste sl;
-        initVide(&sl);
-        return ajoute(sl,L);
-    } else {
-        return ATLTP(n,Permutations(n-1));
-    }
+void afficheRecBis(ListBis l){
+	if(estVide(l)){
+		printf("\n");
+	}else{
+		printf(l->nombre);
+		afficheRecBis(suiteBis(L));
+	}
 }
 
-void test_permutation(){
-    Liste per = Permutations(1);
-    affiche_rec(per);
+
+//Pour ajoute t'as pas misble champ pred du bloc
+//void ajoute(int x, ListeBis L){
+//	ListeBis tmp = (Liste) malloc(sizeof(Bloc));
+//	PBloc nouveau = {
+//		.suivant = L->entree;
+//		.pred = (*l)->pred;
+//		.nombre = x;
+//	};
+//
+//	quel_bloc->pred = L->entree;
+//	quel_bloc->nombre = x;
+//	quel_bloc->suivant = l;
+//	return tmp;
+//}
+
+//ListeBis ajoute(int x; ListeBis L){
+//	ListeBis tmp = (ListeBis) malloc(sizeof(PBloc));
+//	PBloc X = {
+//		.suivant=&(tmp->entree);
+//		.nombre=x;
+//		.pred=L->entree;
+//	};
+//	//tmp-> (*entree) -> nombre = x;//ok, 
+//	//tmp-> (*entree) ->suivant = &L;
+//	//ListeBis NL = &(tmp-> (*entree));
+//	return NL;
+//}
+
+//void retirePBloc(PBloc *P){
+//
+//}
+
+//pas ouf la notation 
+void test_ListeBis(){
+	ListeBis l;
+	initVideBis(&l);
+	empileBis(0, l);
 }
+
+
+//Liste concat(Liste L1, Liste L2){
+//    if (estVide(L1)){
+//        return L2;
+//    } else {
+//        return ajoute(premier(L1),concat(suite(L1),L2));
+//    }
+//}
+//
+//Liste AETTL(int x, Liste L){
+//    if (estVide(L)){
+//        return L;
+//    } else {
+//        return ajoute(ajoute(x,premier(L)),AETTL(x,suite(L)));    
+//    }
+//}
+//
+//Liste ATP(int x, Liste L){
+//    if (estVide(L)){
+//        Liste L2;
+//        initVide(&L2);
+//        Liste sl;
+//        initVide(&sl);
+//        return ajoute(ajoute(x,sl),L2);
+//    } else{
+//        return ajoute(ajoute(x,L),
+//        AETTL(premier(L),ATP(x,suite(L))));
+//    }
+//}
+//
+//Liste ATLTP(int x, Liste L){
+//    if (estVide(L)){
+//        return L;
+//    } else {
+//        return concat(ATP(x,premier(L)), ATLTP(x,suite(L)));
+//    }
+//}
+//
+//Liste Permutations(int n){
+//    if (n==0){
+//        Liste L;
+//        initVide(&L);
+//        Liste sl;
+//        initVide(&sl);
+//        return ajoute(sl,L);
+//    } else {
+//        return ATLTP(n,Permutations(n-1));
+//    }
+//}
+//
+//void test_permutation(){
+//    Liste per = Permutations(1);
+//    affiche_rec(per);
+//}
 
 int main(int argc, char** argv)
 {
@@ -631,12 +721,12 @@ int main(int argc, char** argv)
 	empile(8, &l2) ;
 	empile(2, &l2) ;
 	//VideListe(&l);
-
+	test_ListeBis();
 	//Nos tests de fonctions ci-dessous
 	//affiche_rec(l);
 	//affiche_rec(l2);
 	//test_pointeur_suite();
-	test_fct_begaye();
+	//test_fct_begaye();
 	//test_pb();
 	//test_bruh();
 	//printf("%d\n",pos_0123(l));
