@@ -11,7 +11,6 @@ typedef struct bloc_image{
 typedef bloc_image *image ;
 
 image ConstruitBlanc(){
-	//image im = (image)malloc(sizeof(image));
 	image im = NULL;
 	return im;
 }
@@ -26,6 +25,8 @@ image ConstruitNoir(){
 	return im;
 }
 
+//utilisee que pour les initialisations
+// vrai implementation plus bas
 bool estToutNoir(image im){
 	if(im==NULL){
 		return false;
@@ -33,11 +34,12 @@ bool estToutNoir(image im){
 		return im->toutnoir;
 	}
 }
-
 bool estToutBlanc(image im){
 	return im==NULL;
 }
 
+
+// ConstruitComposee
 image ConstruitComposee(image i0, image i1, image i2, image i3){
 	if(estToutBlanc(i0) && estToutBlanc(i1) && estToutBlanc(i2) && estToutBlanc(i3)){
 		return ConstruitBlanc();
@@ -69,7 +71,7 @@ void afficheSimple(image im){
 	}
 }
 
-void testAffiche(){
+void testAfficheSimple(){
 	image tNoir = ConstruitNoir();
 	image tBlanc = ConstruitBlanc();
 	image composite = ConstruitComposee(ConstruitBlanc()
@@ -80,7 +82,7 @@ void testAffiche(){
 											ConstruitBlanc(),
 											ConstruitNoir(),
 											ConstruitBlanc(),
-											ConstruitNoir()), 
+											ConstruitNoir()),
 										ConstruitBlanc(),
 										ConstruitNoir(),
 										ConstruitNoir());
@@ -96,6 +98,56 @@ void testAffiche(){
 	printf("\n");
 }
 
+void afficheProfondeurBis(image im, int profondeur){
+	if(estToutBlanc(im)){
+		printf("B%d", profondeur);
+	}else if(estToutNoir(im)){
+		printf("N%d", profondeur);
+	}else{
+		printf("(");
+		afficheProfondeurBis(im->fils[0], profondeur+1);
+		afficheProfondeurBis(im->fils[1], profondeur+1);
+		afficheProfondeurBis(im->fils[2], profondeur+1);
+		afficheProfondeurBis(im->fils[3], profondeur+1);
+		printf(")");
+	}
+}
+
+void afficheProfondeur(image im){
+	afficheProfondeurBis(im, 0);
+}
+
+void testAfficheProfondeur(){
+	image tNoir = ConstruitNoir();
+	image tBlanc = ConstruitBlanc();
+	image composite = ConstruitComposee(ConstruitBlanc()
+										, ConstruitNoir()
+										, ConstruitNoir()
+										, ConstruitBlanc());
+	image composite1 = ConstruitComposee(ConstruitComposee(
+											ConstruitBlanc(),
+											ConstruitNoir(),
+											ConstruitBlanc(),
+											ConstruitNoir()),
+										ConstruitBlanc(),
+										ConstruitNoir(),
+										ConstruitNoir());
+	image composite2 = ConstruitComposee(ConstruitNoir()
+										, ConstruitNoir()
+										, composite1
+										, ConstruitBlanc());
+	afficheProfondeur(composite);
+	printf("\n");
+	afficheProfondeur(composite1);
+	printf("\n");
+	afficheProfondeur(composite2);
+	printf("\n");
+	afficheProfondeur(tBlanc);
+	printf("\n");
+	afficheProfondeur(tNoir);
+	printf("\n");}
+
+
 char * litArbre(){
 	char * arbre = (char *)malloc(sizeof(char)*1000000);
 	printf("Entrez l'arbre ('B' ou 'N' ou '()'): ");
@@ -106,58 +158,100 @@ char * litArbre(){
 
 void testLitArbre(){
 	char * arbre = litArbre();
-	printf(arbre);
+	printf("%s", arbre);
 	free(arbre);
 }
 
-char * isoleChaine(char * s, int k){
-	if(s[k]!='('){
-		return "";
-	}
-	int init = k;
-	k++;
+int isoleParentheses(char * s, int k, int taille){
+	//au cas ou un genie s'amuserait
+	//if(s[k]!='('){
+	//	return -1;
+	//}
 	int cpt = 1;
-	int taille=sizeof(s)/sizeof(char);
-	while(k<taille && cpt!=0){
+	while(cpt!=0 && k<taille){
+		k++;
 		if(s[k]=='('){
 			cpt++;
 		}else if(s[k]==')'){
 			cpt--;
 		}
-		k++;
 	}
-	int final = k;
-	return s[]
+	return k;
 }
 
-image Lecture(char * s, int k){
+void testIsoleParentheses(){
+	char * s = "NBB(NB(BBNB)N)";
+	printf("%d\n", isoleParentheses(s, 3,strlen(s)));
+}
+
+image LectureBis(char * s, int debut, int fin){
 	if(s=="N"){// possible erreur entre char et char*
 		return ConstruitNoir();
 	}else if(s=="B"){
 		return ConstruitBlanc();
 	}else{
 		image im = ConstruitNoir();
+		if(debut==fin){
+			return im;
+		}
 		im->toutnoir = false;
 		int cpt = 0;
-		while(s[k]!='\0'){
-			if(s[k]=='N'){
+		while(debut<fin){//&& s[debut]!='\0'
+			if(s[debut]=='N'){
 				im->fils[cpt] = ConstruitNoir();
 				cpt++;
-				k++;
-			}else if(s[k]=='B'){
+				debut++;
+			}else if(s[debut]=='B'){
 				im->fils[cpt] = ConstruitBlanc();
 				cpt++;
-				k++;
-			}else if(s[k]=='('){
-				im->fils[cpt] = Lecture(isoleChaine(s, k), 0);
+				debut++;
+			}else if(s[debut]=='('){
+				int next = isoleParentheses(s, debut, strlen(s));
+				//printf("next %d\n", next);
+				im->fils[cpt] = LectureBis(s , debut+1, next);
+				cpt++;
+				debut=next+1;
+			}else{
+				// ignore characters
+				continue;
 			}
 		}
+		return im;
 	}
 }
 
+image Lecture(char * s){
+	//printf("%ld\n", strlen(s));
+	LectureBis(s, 0, strlen(s));
+}
+
+
+void testLecture(){
+	char * arbre = "";
+	image im = Lecture(arbre);
+	afficheSimple(im);
+	printf("\n");
+	char * arbre2 = "NBNN";
+	image im2 = Lecture(arbre2);
+	afficheSimple(im2);
+	printf("\n");
+	char * arbre3 = "NB(NBBN)B";
+	image im3 = Lecture(arbre3);
+	afficheSimple(im3);
+	printf("\n");
+	char * arbre4 = "B(NBB(BNNB))B(BBNN)";
+	image im4 = Lecture(arbre4);
+	afficheSimple(im4);
+	printf("\n");
+}
+
+
 int main(){
 	// fait qqchose
-	//testAffiche();
-	testLitArbre();
+	testAfficheSimple();
+	testAfficheProfondeur();
+	//testLitArbre();
+	//testIsoleParentheses();
+	//testLecture();
 	return 0;
 }
