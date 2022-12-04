@@ -246,12 +246,105 @@ void testLecture(){
 }
 
 
+
+//forte ambiguite pour ces deux fonctions
+// trop de cas problematiques,
+bool estNoire(image im){
+	if(im==NULL){
+		return false;
+	}else if(im->toutnoir //pas trop compris
+		// des ambiguites possibles
+			&& im->fils[0]==NULL
+			&& im->fils[1]==NULL
+			&& im->fils[2]==NULL
+			&& im->fils[3]==NULL){
+		return true;
+	}else{
+		return estNoire(im->fils[0])
+			   && estNoire(im->fils[1])
+			   && estNoire(im->fils[2])
+			   && estNoire(im->fils[3]);
+	}
+}
+
+bool estBlanche(image im){
+	if(im==NULL){
+		return true;
+	}else if(!im->toutnoir){ //pas trop compris
+		return estBlanche(im->fils[0])
+			   && estBlanche(im->fils[1])
+			   && estBlanche(im->fils[2])
+			   && estBlanche(im->fils[3]);
+	}
+}
+
+image quartDeTour(image im){
+	if(estToutBlanc(im) || estToutNoir(im)){
+		return im;
+	}else{
+		return ConstruitComposee(
+				quartDeTour(im->fils[2]),
+				quartDeTour(im->fils[0]),
+				quartDeTour(im->fils[3]),
+				quartDeTour(im->fils[1]));
+	}
+}
+
+void testQuartDeTour(){
+	//revoir les dangers des parentheses en extra
+	image im = Lecture("(BNNN)B(NNBB)N");
+	image qIm = quartDeTour(im);
+	afficheSimple(im);
+	printf("\n");
+	afficheSimple(qIm);
+}
+
+image negatif(image im){
+	if(estToutNoir(im)){
+		return ConstruitBlanc();
+	}else if(estToutBlanc(im)){
+		return ConstruitNoir();
+	}else{
+		return ConstruitComposee(
+					negatif(im->fils[0]),
+					negatif(im->fils[1]),
+					negatif(im->fils[2]),
+					negatif(im->fils[3])
+					);
+	}
+}
+
+void testNegatif(){
+	image im = Lecture("NBNN");
+	image inverse = negatif(im);
+	afficheSimple(im);
+	printf("\n");
+	afficheSimple(inverse);
+	printf("\n");
+	image im2 = Lecture("N(NBNN)B((BNBN)NB(NBBN))");
+	image inverse2 = negatif(im2);
+	afficheSimple(im2);
+	printf("\n");
+	afficheSimple(inverse2);
+	printf("\n");
+}
+
+
+/* TODO
+	- regler les problemes de parentheses en extra 
+	dans lecture
+	- possibles ambiguites dans estBlanche()
+*/
+
+
 int main(){
 	// fait qqchose
-	testAfficheSimple();
-	testAfficheProfondeur();
+	//testAfficheSimple();
+	//testAfficheProfondeur();
 	//testLitArbre();
 	//testIsoleParentheses();
 	//testLecture();
+	//testQuartDeTour();
+	testNegatif();
 	return 0;
 }
