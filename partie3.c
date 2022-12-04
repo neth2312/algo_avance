@@ -330,21 +330,116 @@ void testNegatif(){
 }
 
 
+image Diagonale(int p){
+	if(p==0){
+		return ConstruitBlanc();
+	}else if(p==1){
+		image im = ConstruitNoir();
+		im->toutnoir = false;
+		im->fils[0]=ConstruitNoir();
+		im->fils[1]=ConstruitBlanc();
+		im->fils[2]=ConstruitBlanc();
+		im->fils[3]=ConstruitNoir();
+		return im;
+	}else{
+		image im = ConstruitNoir();
+		im->toutnoir = false;
+		im->fils[0]=Diagonale(p-1);
+		im->fils[1]=ConstruitBlanc();
+		im->fils[2]=ConstruitBlanc();
+		im->fils[3]=Diagonale(p-1);
+		return im;
+	}
+}
+
+void testDiagonale(){
+	//image im = Lecture();
+	image im = Diagonale(3);
+	afficheSimple(im);
+	printf("\n");
+}
+
+bool Incluse(image im1, image im2){
+	if(estToutNoir(im1) && !estToutNoir(im2)){
+		return false;
+	}else if(estToutNoir(im2) || estToutBlanc(im1)){
+		return true;
+	}else if(estToutBlanc(im2)){
+		return false;
+	}else{
+		return Incluse(im1->fils[0], im2->fils[0])
+			&& Incluse(im1->fils[1], im2->fils[1])
+			&& Incluse(im1->fils[2], im2->fils[2])
+			&& Incluse(im1->fils[3], im2->fils[3]);
+	}
+}
+
+void testIncluse(){
+	image im1 = Lecture("((BBBB)NBN)BN((BBNN)BB(NBBN))");
+	image im2 = Lecture("(BNNN)(BBNB)(NNNN)(NBN(NNNB))");
+	image im3 = Lecture("NBN(BBBN)");
+	image im4 = Lecture("NNN(NBNN)");
+	image im5 = Lecture("NBNN");
+	image im6 = Lecture("NNNN");
+	printf("%d\n", Incluse(im1, im2));
+	printf("%d\n", Incluse(im3, im4));
+	printf("%d\n", Incluse(im5, im6));
+}
+
+int max(int x, int y){
+	if(x > y){
+		return x;
+	}else{
+		return y;
+	}
+}
+
+int hautMaxBlancBis(image im1, bool blanc_premier){
+	if(estBlanche(im1) && blanc_premier){
+		return 1;
+	}else if(estNoire(im1)){
+		return -1;
+	}else if(estBlanche(im1) && !blanc_premier){
+		return 0;
+	}else{
+		blanc_premier = false;
+		int mx1 = max(1+hautMaxBlancBis(im1->fils[0], false),
+					  1+hautMaxBlancBis(im1->fils[1], false));
+		int mx2 = max(1+hautMaxBlancBis(im1->fils[2], false),
+					  1+hautMaxBlancBis(im1->fils[3], false));
+		return max(mx1, mx2);
+	}
+}
+
+int hautMaxBlanc(image im){
+	return hautMaxBlancBis(im, true);
+}
+
+void testHautMaxBlanc(){
+	image im = Lecture("(BBBB)N(BNBN)(NBN(NB(BB(BBBB)(BBB(BBBB)))N))");
+	printf("%d\n", hautMaxBlanc(im));
+}
+
+
 /* TODO
 	- regler les problemes de parentheses en extra 
 	dans lecture
-	- possibles ambiguites dans estBlanche()
+	- possibles ambiguites dans estBlanche() et estNoire()
 */
 
 
 int main(){
-	// fait qqchose
+	// choisir un test
+
 	//testAfficheSimple();
 	//testAfficheProfondeur();
 	//testLitArbre();
 	//testIsoleParentheses();
 	//testLecture();
 	//testQuartDeTour();
-	testNegatif();
+	//testNegatif();
+	//testDiagonale();
+	//testIncluse();
+	//testHautMaxBlanc();
 	return 0;
 }
