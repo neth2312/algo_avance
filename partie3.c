@@ -11,8 +11,7 @@ typedef struct bloc_image{
 typedef bloc_image *image ;
 
 image ConstruitBlanc(){
-	image im = NULL;
-	return im;
+	return NULL;
 }
 
 image ConstruitNoir(){
@@ -276,7 +275,9 @@ bool testEstNoire(){
 bool estBlanche(image im){
 	if(im==NULL){
 		return true;
-	}else if(!im->toutnoir){
+	}else if(im->toutnoir){
+		return false;
+	}else{
 		return estBlanche(im->fils[0])
 			   && estBlanche(im->fils[1])
 			   && estBlanche(im->fils[2])
@@ -348,7 +349,7 @@ void testNegatif(){
 
 image Diagonale(int p){
 	if(p==0){
-		return ConstruitBlanc();
+		return ConstruitNoir();
 	}else if(p==1){
 		image im = ConstruitNoir();
 		im->toutnoir = false;
@@ -377,12 +378,10 @@ void testDiagonale(){
 
 
 bool Incluse(image im1, image im2){
-	if(estToutNoir(im1) && !estToutNoir(im2)){
+	if((estToutNoir(im1) && !estToutNoir(im2)) || estToutBlanc(im2)){
 		return false;
 	}else if(estToutNoir(im2) || estToutBlanc(im1)){
 		return true;
-	}else if(estToutBlanc(im2)){
-		return false;
 	}else{
 		return Incluse(im1->fils[0], im2->fils[0])
 			&& Incluse(im1->fils[1], im2->fils[1])
@@ -411,32 +410,68 @@ int max(int x, int y){
 	}
 }
 
-int hautMaxBlancBis(image im1, bool blanc_premier){
-	if(estBlanche(im1) && blanc_premier){
-		return 1;
-	}else if(estNoire(im1)){
-		return -1;
-	}else if(estBlanche(im1) && !blanc_premier){
-		return 0;
-	}else{
-		blanc_premier = false;
-		int mx1 = max(1+hautMaxBlancBis(im1->fils[0], false),
-					  1+hautMaxBlancBis(im1->fils[1], false));
-		int mx2 = max(1+hautMaxBlancBis(im1->fils[2], false),
-					  1+hautMaxBlancBis(im1->fils[3], false));
-		return max(mx1, mx2);
-	}
+int hautMaxBlancBis(image im){
+    if (estToutNoir(im)  || estNoire(im)){
+        return -1;
+    }
+    if (estToutBlanc(im) ){
+        return 0;
+    }
+    return 1+max(max(hautMaxBlancBis(im->fils[0]),hautMaxBlancBis(im->fils[1])),
+                 max(hautMaxBlancBis(im->fils[2]),hautMaxBlancBis(im->fils[3])));
 }
 
 int hautMaxBlanc(image im){
-	return hautMaxBlancBis(im, true);
+    return hautMaxBlancBis(im);
 }
 
 void testHautMaxBlanc(){
-	image im = Lecture("(BBBB)N(BNBN)(NBN(NB(BB(BBBB)(BBB(BBBB)))N))");
-	printf("%d\n", hautMaxBlanc(im));
+    image im1 = Lecture("(BBBB)N(BNBN)(NBN(NB(BB(BBBB)(BBB(BBBB)))N))");//6
+    image im2= Lecture("NNNN");//-1
+    image im3= Lecture("N");//-1
+    image im4= Lecture("B");//0
+    image im5= Lecture("BBBB");//1
+    image im6= Lecture("BBB(BBBB)");//2
+    image im7= Lecture("BB(BBBB)(BBB(BBBB))");//3
+    printf("%d\n", hautMaxBlanc(im1));
+    printf("%d\n", hautMaxBlanc(im2));
+    printf("%d\n", hautMaxBlanc(im3));
+    printf("%d\n", hautMaxBlanc(im4));
+    printf("%d\n", hautMaxBlanc(im5));
+    printf("%d\n", hautMaxBlanc(im6));
+    printf("%d\n", hautMaxBlanc(im7));
 }
 
+image SimplifieProfP(image im, int p){
+	if(estToutNoir(im) || estToutBlanc(im)){
+		return im;
+	}
+	if(p==0){
+		if(estNoire(im->fils[0]) && estNoire(im->fils[1]) && estNoire(im->fils[2]) && estNoire(im->fils[3])){
+			im = ConstruitNoir();
+		}
+		else if(estBlanche(im->fils[0]) && estBlanche(im->fils[1]) && estBlanche(im->fils[2]) && estBlanche(im->fils[3])){
+			im = ConstruitBlanc();
+		}
+		return im;
+	}else{
+		for(int i=0; i<4; i++){
+			if(!estToutBlanc(im->fils[i]) && !estToutNoir(im->fils[i])){
+				im->fils[i] = SimplifieProfP(im->fils[i], p-1);
+			}
+		}
+		return im;
+	}
+}
+
+void testSimplifieProfP(){
+	image im = Lecture("N(NB(NN(NNNN)N)B)(NBN(NBN(BBBB)))(BB(BBBB)B)");
+	afficheSimple(im);
+	printf("\n");
+	image ims = SimplifieProfP(im, 2);
+	afficheSimple(ims);
+	printf("\n");
+}
 
 
 /* TODO
@@ -456,8 +491,9 @@ int main(){
 	//testEstNoire();
 	//testDiagonale();
 	//testIncluse();
-	//testHautMaxBlanc();
-	testEstBlanche();
+	testHautMaxBlanc();
+	//testEstBlanche();
+	//testSimplifieProfP();
 	return 0;
 }
 
