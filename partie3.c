@@ -252,12 +252,7 @@ void testLecture(){
 bool estNoire(image im){
 	if(im==NULL){
 		return false;
-	}else if(im->toutnoir //pas trop compris
-		// des ambiguites possibles
-			&& im->fils[0]==NULL
-			&& im->fils[1]==NULL
-			&& im->fils[2]==NULL
-			&& im->fils[3]==NULL){
+	}else if(im->toutnoir){
 		return true;
 	}else{
 		return estNoire(im->fils[0])
@@ -267,16 +262,37 @@ bool estNoire(image im){
 	}
 }
 
+
+bool testEstNoire(){
+	image im = Lecture("NBNN");
+	printf("%d\n", estNoire(im));
+	image im2 = Lecture("N(NNNN)NN");
+	printf("%d\n", estNoire(im2));
+	image im3 = Lecture("NBBN");
+	printf("%d\n", estNoire(im3));
+}
+
+
 bool estBlanche(image im){
 	if(im==NULL){
 		return true;
-	}else if(!im->toutnoir){ //pas trop compris
+	}else if(!im->toutnoir){
 		return estBlanche(im->fils[0])
 			   && estBlanche(im->fils[1])
 			   && estBlanche(im->fils[2])
 			   && estBlanche(im->fils[3]);
 	}
 }
+
+bool testEstBlanche(){
+	image im = Lecture("BBBB");
+	printf("%d\n", estBlanche(im));
+	image im2 = Lecture("");
+	printf("%d\n", estBlanche(im2));
+	image im3 = Lecture("BBBN");
+	printf("%d\n", estBlanche(im3));
+}
+
 
 image quartDeTour(image im){
 	if(estToutBlanc(im) || estToutNoir(im)){
@@ -359,6 +375,7 @@ void testDiagonale(){
 	printf("\n");
 }
 
+
 bool Incluse(image im1, image im2){
 	if(estToutNoir(im1) && !estToutNoir(im2)){
 		return false;
@@ -421,16 +438,14 @@ void testHautMaxBlanc(){
 }
 
 
+
 /* TODO
-	- regler les problemes de parentheses en extra 
-	dans lecture
-	- possibles ambiguites dans estBlanche() et estNoire()
+	AAAAAAAAAAARGHHHHHH
 */
 
 
 int main(){
-	// choisir un test
-
+	// fait qqchose
 	//testAfficheSimple();
 	//testAfficheProfondeur();
 	//testLitArbre();
@@ -438,8 +453,11 @@ int main(){
 	//testLecture();
 	//testQuartDeTour();
 	//testNegatif();
+	//testEstNoire();
 	//testDiagonale();
 	//testIncluse();
 	//testHautMaxBlanc();
+	testEstBlanche();
 	return 0;
 }
+
