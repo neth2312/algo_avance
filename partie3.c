@@ -473,10 +473,9 @@ void testSimplifieProfP(){
 	printf("\n");
 }
 
-
-/* TODO
-	AAAAAAAAAAARGHHHHHH
-*/
+// pas reussies - non tentees
+// Chute
+// BlanchitProfP
 
 
 int main(){
