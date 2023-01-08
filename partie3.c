@@ -1,3 +1,7 @@
+// Binome
+// Nathan SMETS
+// Moncef AIT BELKACEM
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
